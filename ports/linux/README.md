@@ -98,3 +98,20 @@ Use `-r linux-arm64` on the device. Use a real `pkforge` directory, not a symlin
 
 ## 10. Alternative
 The RG DS Plus can reportedly run Android through GammaOS Nano, which would run the existing APK with no port. Not tested.
+
+## Development container
+`dev/Dockerfile` reproduces the environment the port was built and smoke-tested in (.NET 10 SDK plus Xvfb, ImageMagick, GTK 3, SDL2, Mesa, sway). Mount the repository at the same absolute path it has on the host, so paths in build output match:
+```bash
+docker build -t pkforge-linux-dev ports/linux/dev
+docker run -d --name pkforge-linux -v "$PWD":"$PWD" -w "$PWD" pkforge-linux-dev sleep infinity
+docker exec pkforge-linux bash -lc "cd $PWD && dotnet test ports/linux/PKForge.Linux.Tests"
+```
+Use `-r linux-arm64` on an arm64 host (Apple silicon) and `-r linux-x64` elsewhere. `ports/linux/packaging/smoke.sh` needs a built head first.
+
+## Merging upstream
+The Linux head compiles the app's sources unchanged, so an upstream merge can break it without touching `ports/`. After merging:
+1. Run `dotnet test ports/linux/PKForge.Linux.Tests`.
+2. A failing `AssetParityTests` means upstream added or changed assets in `PKForge.App.csproj`: copy the new asset lines into `ports/linux/PKForge.Linux/Assets.props`.
+3. A failing `SeamGuardTests` names the problem. A changed `UseMauiApp<App>().UseSkiaSharp()` call or namespace means the hosting seam no longer binds. A missing replaced file means a rename upstream: update the head's `Compile` `Exclude` and its stand-in. A changed set of Android-referencing files means new Android-only code: guard it, shim it in `AndroidShim/`, or exclude and replace it.
+4. A build error names the member to add to a stand-in or to the stub layer.
+5. Run `ports/linux/packaging/smoke.sh` after a build. CI (`.github/workflows/linux-port.yml`) does the same on every push and pull request touching `src/**` or `ports/linux/**`.
