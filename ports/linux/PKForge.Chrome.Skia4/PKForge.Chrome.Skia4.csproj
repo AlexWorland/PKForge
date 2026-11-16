@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The unchanged src/PKForge.Chrome sources built against SkiaSharp 4, the version OpenMaui needs.
+       The assembly keeps the name PKForge.Chrome so the app code binds to it as on Android. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>PKForge.Chrome</AssemblyName>
+    <RootNamespace>PKForge.Chrome</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- SkiaSharp 4 marks some 3.x APIs obsolete; the sources under src/ stay untouched. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../src/PKForge.Chrome/**/*.cs" Exclude="../../../src/PKForge.Chrome/bin/**;../../../src/PKForge.Chrome/obj/**" Link="Chrome/%(RecursiveDir)%(Filename)%(Extension)" />
+    <PackageReference Include="SkiaSharp" Version="4.152.1" />
+    <ProjectReference Include="../../../src/PKForge.Domain/PKForge.Domain.csproj" />
+  </ItemGroup>
+</Project>

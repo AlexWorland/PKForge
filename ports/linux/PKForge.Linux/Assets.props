@@ -1,0 +1,65 @@
+<Project>
+  <!-- Mirrors the MauiAsset and MauiFont items of src/PKForge.App/PKForge.App.csproj. AssetParityTests keeps them equal. -->
+  <ItemGroup>
+    <MauiFont Include="$(PKForgeRoot)/src/PKForge.App/Resources/Fonts/*.ttf" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/dex/*.bin.gz" LogicalName="dex/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/AppIcon/pkforge.png" LogicalName="ui/logo.png" />
+    <!-- The logo in each color scheme's colors, named by scheme id. -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/logo/*.png" LogicalName="ui/logo/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/egg/*.png" LogicalName="ui/egg/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/art/*.png" LogicalName="ui/art/%(Filename)%(Extension)" />
+    <!-- The Pokéwalker device, drawn by the artist (sizes and anchors: PKForge.Chrome WalkerDevice). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/walker/*.png" LogicalName="ui/walker/%(Filename)%(Extension)" />
+    <!-- The transfer portal's ring and closing star, frames left to right (PKForge.Chrome PortalPaint). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/portal/*.png" LogicalName="ui/portal/%(Filename)%(Extension)" />
+    <!-- The About screen's easter egg. -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/BadApple/*" LogicalName="badapple/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Events/*.bin.gz" LogicalName="events/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Big Pokemon Sprites/*.png" LogicalName="sprites/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Big Shiny Sprites/*.png" LogicalName="sprites/%(Filename)%(Extension)" />
+    <!-- Luminescent Platinum's custom form icons (Team Lumi; see Resources/UI/ATTRIBUTION.md). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/lumi/*.png" LogicalName="sprites/lumi/%(Filename)%(Extension)" />
+    <!-- Pokémon Showdown sprites (Smogon). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Showdown/icons.png" LogicalName="showdown/icons.png" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Showdown/front/*.png" LogicalName="showdown/front/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Showdown/front-shiny/*.png" LogicalName="showdown/front-shiny/%(Filename)%(Extension)" />
+    <!-- PKHeX ships no pixel sprites past species 905 (Legends: Arceus); for Gen 9 it
+         displays official artwork. Bundle that artwork block (base + forms, ~1MB) as
+         the offline Gen 9 fallback, exactly what PKHeX itself shows. -->
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Artwork Pokemon Sprites/a_9*.png" LogicalName="artwork/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Artwork Pokemon Sprites/a_10*.png" LogicalName="artwork/%(Filename)%(Extension)" />
+    <!-- Form artwork for every generation (~2MB): PKHeX has no pixel sprite for Paldean
+         Tauros, the Legends: Z-A megas, Urshifu Rapid Strike, ... and the sprite resolver
+         (SpriteCatalog) shows the exact form's artwork before ever falling back to the
+         base form. Overlaps with a_9*/a_10* are the same files under the same name. -->
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Artwork Pokemon Sprites/a_*-*.png"
+               Exclude="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Artwork Pokemon Sprites/a_9*.png;$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/Artwork Pokemon Sprites/a_10*.png"
+               LogicalName="artwork/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.PokeSprite/Resources/img/ball/*.png" LogicalName="balls/%(Filename)%(Extension)" />
+    <!-- PKHeX's complete, format-accurate ribbon/mark artwork (GPL-3). -->
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.Misc/Resources/img/ribbons/*.png" LogicalName="ribbons/%(Filename)%(Extension)" />
+    <!-- In-game box wallpapers (PKHeX WallpaperUtil resource names) for the box manager's wallpaper picker. -->
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.Misc/Resources/img/box/**/*.png" LogicalName="wallpapers/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/external/PKHeX/PKHeX.Drawing.Misc/Resources/img/ribbons/ribbonchampionkalos.png" LogicalName="ui/pksm/ribbon_award.png" />
+    <!-- Game icons + hero art fetched once at build time from SteamGridDB (no key ships in the app). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/GameArt/*.png" LogicalName="gameart/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/GameHero/*.png" LogicalName="gamehero/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/GameLogo/*.png" LogicalName="gamelogo/%(Filename)%(Extension)" />
+    <!-- PKSM-derived pixel chrome (GPL-3, see Resources/UI/ATTRIBUTION.md). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/pksm/*.png" LogicalName="ui/pksm/%(Filename)%(Extension)" />
+    <!-- Phosphor duotone icons (MIT, see Resources/UI/ATTRIBUTION.md), white at 96 px. -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/tools/*.png" LogicalName="ui/tools/%(Filename)%(Extension)" />
+    <!-- Item sprites (PokéAPI, see Resources/UI/ATTRIBUTION.md) standing for the Save data tools. -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/items/*.png" LogicalName="ui/items/%(Filename)%(Extension)" />
+    <!-- The designer's icons for the new art direction (summary tabs, footer buttons). -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/UI/design/*.png" LogicalName="ui/design/%(Filename)%(Extension)" />
+    <!-- The Poképark: the artist's map at native size, its ground, objects and their depth. -->
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Pokepark/park/*.png" LogicalName="pokepark/park/%(Filename)%(Extension)" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Pokepark/widget/*.png" LogicalName="pokepark/widget/%(Filename)%(Extension)" />
+  </ItemGroup>
+  <!-- The code also reads these two fonts as package files, as the spike found. -->
+  <ItemGroup Label="LinuxOnly">
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Fonts/NDS12.ttf" LogicalName="NDS12.ttf" />
+    <MauiAsset Include="$(PKForgeRoot)/src/PKForge.App/Resources/Fonts/MPLUSRounded1c-Regular.ttf" LogicalName="MPLUSRounded1c-Regular.ttf" />
+  </ItemGroup>
+</Project>
