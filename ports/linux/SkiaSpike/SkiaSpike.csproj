@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable><LangVersion>latest</LangVersion>
+    <RootNamespace>SkiaSpike</RootNamespace>
+    <AssemblyName>SkiaSpike</AssemblyName>
+    <!-- The spike lives at ports/linux/SkiaSpike inside the fork, so the PKForge root is three levels up.
+         Override with -p:PKForge=/path/to/pkforge to build against another checkout. -->
+    <PKForge Condition="'$(PKForge)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../..'))</PKForge>
+    <!-- Prototype code: don't inherit the repo-wide TreatWarningsAsErrors from Directory.Build.props. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ApplicationTitle>SkiaSpike</ApplicationTitle>
+  </PropertyGroup>
+
+  <!-- Linux publishes are compiled ahead of time (ReadyToRun): the app starts faster, since MAUI,
+       OpenMaui and app code is not JIT-compiled on first use (the publish is larger). Set here, in
+       the project, so restore downloads the ReadyToRun compiler. Remove it to publish IL only. -->
+  <PropertyGroup Condition="!$(TargetFramework.Contains('-'))">
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- OpenMaui: UseLinux() stub (safe no-op on non-Linux platforms) -->
+    <PackageReference Include="OpenMaui.Hosting" Version="10.0.*" />
+    <!-- OpenMaui: Full Linux platform (handlers, services, rendering), for the Linux (plain
+         net10.0) target only. It also sets that target's linux-x64/linux-arm64 runtime
+         identifiers. Add net10.0-android and the other MAUI targets to TargetFrameworks as in
+         any MAUI app: they build with MAUI as usual and never get the Linux platform. -->
+    <PackageReference Include="OpenMaui.Controls.Linux" Version="10.0.*" Condition="!$(TargetFramework.Contains('-'))" />
+
+    <!-- Core MAUI packages -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.130" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="4.152.1" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.130" />
+    <PackageReference Include="SkiaSharp" Version="4.152.1" />
+  </ItemGroup>
+
+  <!-- Linux platform files: only compiled for the Linux target, built on Linux (the other
+       targets have their own entry points under Platforms/, as in any MAUI app). -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-')) Or !$([MSBuild]::IsOSPlatform('Linux'))">
+    <Compile Remove="Platforms\Linux\**" />
+    <None Remove="Platforms\Linux\**" />
+  </ItemGroup>
+
+  <!-- Resources: use MAUI item types so they get processed properly. A blanket
+       EmbeddedResource glob will collide with MauiXaml-embedded resource IDs
+       when consumers add XAML files under Resources/. -->
+  <ItemGroup>
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiImage Include="Resources\Images\*" Exclude="Resources\Images\*.md;Resources\Images\.gitkeep" />
+  </ItemGroup>
+
+  <!-- Packaging for distribution: package this app as a Linux AppImage with
+       `dotnet tool install -g OpenMaui.AppImage` then
+       `openmaui-appimage -p .`
+       (single-dash forms: an XML comment may not contain a double hyphen).
+       Full guide (options, CI, signing, host-dependency checks) — intended for
+       humans and AI assistants alike:
+       https://github.com/open-maui/appimage/blob/main/docs/PACKAGING-GUIDE.md -->
+  <ItemGroup><ProjectReference Include="$(PKForge)/src/PKForge.Chrome/PKForge.Chrome.csproj" /></ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(PKForge)/src/PKForge.App/Views/PickerMenu.cs;$(PKForge)/src/PKForge.App/Views/Kit.cs;$(PKForge)/src/PKForge.App/Views/PaintGuard.cs;$(PKForge)/src/PKForge.App/Theme/**/*.cs;$(PKForge)/src/PKForge.App/Services/AppLog.cs;$(PKForge)/src/PKForge.App/Services/PerfTrace.cs;$(PKForge)/src/PKForge.App/Services/UiScaleSetting.cs;$(PKForge)/src/PKForge.App/Services/PaintClock.cs;$(PKForge)/src/PKForge.App/Services/FrameInvalidator.cs;$(PKForge)/src/PKForge.App/Services/GamepadRouting.cs;$(PKForge)/src/PKForge.App/Services/ColorThemeSetting.cs;$(PKForge)/src/PKForge.App/Services/Motion.cs;$(PKForge)/src/PKForge.App/Services/MotionSetting.cs;$(PKForge)/src/PKForge.App/Services/ThemeLogo.cs;$(PKForge)/src/PKForge.App/Views/DsKit.cs;$(PKForge)/src/PKForge.App/Views/CapsuleSkin.cs;$(PKForge)/src/PKForge.App/Views/StatusToast.cs;$(PKForge)/src/PKForge.App/Views/InfoKit.cs;$(PKForge)/src/PKForge.App/Views/TypePlates.cs;$(PKForge)/src/PKForge.App/Views/TextPopup.cs;$(PKForge)/src/PKForge.App/Views/PadMenu.cs;$(PKForge)/src/PKForge.App/Services/SpriteService.cs;$(PKForge)/src/PKForge.App/Views/PksmIcon.cs;$(PKForge)/src/PKForge.App/Views/PadOverlay.cs;$(PKForge)/src/PKForge.App/Views/SummaryPlates.cs;$(PKForge)/src/PKForge.App/Views/PixelFont.cs" Link="App/%(Filename)%(Extension)" />
+    <ProjectReference Include="$(PKForge)/src/PKForge.App/../PKForge.Domain/PKForge.Domain.csproj" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+  <ItemGroup><MauiAsset Include="$(PKForge)/src/PKForge.App/Resources/Fonts/NDS12.ttf" LogicalName="NDS12.ttf" /></ItemGroup>
+</Project>
