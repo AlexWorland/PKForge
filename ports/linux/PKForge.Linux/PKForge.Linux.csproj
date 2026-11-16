@@ -33,7 +33,7 @@
     <Compile Include="$(PKForgeRoot)/src/PKForge.App/**/*.cs"
              Exclude="$(PKForgeRoot)/src/PKForge.App/Platforms/**;$(PKForgeRoot)/src/PKForge.App/bin/**;$(PKForgeRoot)/src/PKForge.App/obj/**;$(PKForgeRoot)/src/PKForge.App/Services/VsyncLoop.cs;$(PKForgeRoot)/src/PKForge.App/Services/AppUpdateService.cs;$(PKForgeRoot)/src/PKForge.App/Views/WidgetMenu.cs;$(PKForgeRoot)/src/PKForge.App/Views/BadAppleEgg.cs"
              Link="App/%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="Program.cs;Core/**/*.cs" />
+    <Compile Include="Program.cs;Core/**/*.cs;Hosting/**/*.cs;AndroidShim/**/*.cs;Seams/**/*.cs;Platform/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
