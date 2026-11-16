@@ -30,10 +30,11 @@ public static class LinuxHosting
         services.AddSingleton<Platforms.Android.MusicPlayer>();
         services.AddSingleton<PKForge.Domain.IMusicPlayer>(sp => sp.GetRequiredService<Platforms.Android.MusicPlayer>());
         // Temporary placeholders (Placeholders.cs); tasks 6 to 12 replace them one by one.
-        services.AddSingleton<ISaveFileAccess, PlaceholderSaveFileAccess>();
+        services.AddSingleton<ISaveFileAccess, PKForge.Linux.Core.LinuxSaveFileAccess>();
         services.AddSingleton<IDocumentPicker, PlaceholderDocumentPicker>();
         services.AddSingleton<IFolderPicker, PlaceholderFolderPicker>();
-        services.AddSingleton<IFolderFileAccess, PlaceholderFolderFileAccess>();
+        // Shared code reaches IFolderTreeAccess by casting IFolderFileAccess, so one class serves both.
+        services.AddSingleton<IFolderFileAccess, PKForge.Linux.Core.LinuxFolderFileAccess>();
         services.AddSingleton<IEmulatorDetectionService, PlaceholderEmulatorDetectionService>();
         services.AddSingleton<ISecondaryDisplayHost, PlaceholderSecondaryDisplayHost>();
     }
