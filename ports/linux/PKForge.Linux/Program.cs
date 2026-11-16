@@ -6,6 +6,7 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        EssentialsFallbacks.Install();
         var app = PKForge.App.MauiProgram.CreateMauiApp();
         LinuxApplication.Run(app, args);
     }
