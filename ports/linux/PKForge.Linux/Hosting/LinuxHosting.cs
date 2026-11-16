@@ -19,6 +19,8 @@ public static class LinuxHosting
     {
         SkiaSharp.Views.Maui.Controls.Hosting.AppHostBuilderExtensions.UseSkiaSharp(builder);
         builder.UseLinux();
+        PKForge.Linux.LinuxEssentials.Install();
+        StartEssentialsProbe();
         RegisterPlatformServices(builder.Services);
         StartPadScript();
         return builder;
@@ -31,15 +33,29 @@ public static class LinuxHosting
         services.AddSingleton<PKForge.Domain.IMusicPlayer>(sp => sp.GetRequiredService<Platforms.Android.MusicPlayer>());
         // Temporary placeholders (Placeholders.cs); tasks 6 to 12 replace them one by one.
         services.AddSingleton<ISaveFileAccess, PKForge.Linux.Core.LinuxSaveFileAccess>();
-        services.AddSingleton<IDocumentPicker, PlaceholderDocumentPicker>();
-        services.AddSingleton<IFolderPicker, PlaceholderFolderPicker>();
+        services.AddSingleton<IDocumentPicker, LinuxDocumentPicker>();
+        services.AddSingleton<IFolderPicker, LinuxFolderPicker>();
         // Shared code reaches IFolderTreeAccess by casting IFolderFileAccess, so one class serves both.
         services.AddSingleton<IFolderFileAccess, PKForge.Linux.Core.LinuxFolderFileAccess>();
         services.AddSingleton<IEmulatorDetectionService, PKForge.Linux.Core.LinuxEmulatorScanner>();
         services.AddSingleton<ISecondaryDisplayHost, PlaceholderSecondaryDisplayHost>();
     }
 
-    // Test hook: PKFORGE_PAD_SCRIPT="Down,Down,A" sends each PadButton through GamepadRouter.Dispatch
+    // OpenMaui installs some of its own Essentials late, inside LinuxApplication.Run. Once the first
+    // window exists, log which implementation each service resolves to, so a lost install shows.
+    private static void StartEssentialsProbe() => _ = Task.Run(async () =>
+    {
+        for (var i = 0; i < 120; i++)
+        {
+            await Task.Delay(250);
+            if (Application.Current?.Windows.Count > 0) break;
+        }
+        await MainThread.InvokeOnMainThreadAsync(() => PKForge.Linux.LinuxEssentials.LogActive("first window"));
+        await Task.Delay(5000);
+        await MainThread.InvokeOnMainThreadAsync(() => PKForge.Linux.LinuxEssentials.LogActive("5 s later"));
+    });
+
+    // Test hook: PKFORGE_PAD_SCRIPT="Down,Wait1000,A" sends each PadButton through GamepadRouter.Dispatch
     // on the main thread, 500 ms apart, starting 3 seconds after launch.
     private static void StartPadScript()
     {
@@ -51,6 +67,12 @@ public static class LinuxHosting
             Services.AppLog.Info("padscript", $"Running {script}");
             foreach (var name in script.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
+                // "Wait2000" pauses that many milliseconds: a dialogue types out at its own pace.
+                if (name.StartsWith("Wait", StringComparison.OrdinalIgnoreCase) && int.TryParse(name.AsSpan(4), out var pause))
+                {
+                    await Task.Delay(pause);
+                    continue;
+                }
                 if (!Enum.TryParse<Services.PadButton>(name, ignoreCase: true, out var button))
                 {
                     Services.AppLog.Warn("padscript", $"Unknown button '{name}'");
@@ -60,7 +82,9 @@ public static class LinuxHosting
                 {
                     var router = IPlatformApplication.Current?.Services.GetService<Services.GamepadRouter>();
                     var handled = await MainThread.InvokeOnMainThreadAsync(() => router?.Dispatch(button) ?? false);
-                    Services.AppLog.Info("padscript", $"{button} handled={handled}");
+                    var top = await MainThread.InvokeOnMainThreadAsync(() =>
+                        (Application.Current?.Windows.FirstOrDefault()?.Page?.Navigation.NavigationStack.LastOrDefault())?.GetType().Name);
+                    Services.AppLog.Info("padscript", $"{button} handled={handled} top={top}");
                 }
                 catch (Exception ex) { Services.AppLog.Error("padscript", $"{button} failed", ex); }
                 await Task.Delay(500);

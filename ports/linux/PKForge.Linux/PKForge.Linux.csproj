@@ -19,6 +19,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Read back by LinuxAppInfo so the About line and update check see the app's real version. -->
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ApplicationDisplayVersion</_Parameter1>
+      <_Parameter2>$(ApplicationDisplayVersion)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ApplicationVersion</_Parameter1>
+      <_Parameter2>$(ApplicationVersion)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="OpenMaui.Hosting" Version="10.0.130.1" />
     <PackageReference Include="OpenMaui.Controls.Linux" Version="10.0.130.1" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.130" />

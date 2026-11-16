@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Storage;
 
@@ -5,38 +6,45 @@ namespace PKForge.Linux;
 
 // OpenMaui does not supply every MAUI Essentials service; the ones it leaves on the
 // reference-assembly implementation throw NotImplementedInReferenceAssemblyException.
-// Program.Main installs these before the app composes. See DECISIONS.md ESSENTIALS_GAPS.
+// Program.Main installs these before the app composes (AppInfo and FileSystem are read
+// by the composition root). See DECISIONS.md ESSENTIALS_GAPS.
 internal sealed class LinuxAppInfo : IAppInfo
 {
+    // The numbers come from the csproj's ApplicationDisplayVersion / ApplicationVersion, which it
+    // stamps into the assembly as AssemblyMetadata, so they cannot drift from the app's version.
+    private static readonly string Display = Meta("ApplicationDisplayVersion");
+    private static readonly string Build = Meta("ApplicationVersion");
+
     public string PackageName => "org.pkforge.app";
     public string Name => "PKForge";
-    public string VersionString => "1.0.0";
-    public Version Version => new(1, 0, 0);
-    public string BuildString => "1";
+    public string VersionString => Display;
+    public Version Version => System.Version.Parse(Display);
+    public string BuildString => Build;
     public void ShowSettingsUI() { }
     public AppTheme RequestedTheme => AppTheme.Dark;
     public AppPackagingModel PackagingModel => AppPackagingModel.Unpackaged;
     public LayoutDirection RequestedLayoutDirection => LayoutDirection.LeftToRight;
+
+    private static string Meta(string key) =>
+        typeof(LinuxAppInfo).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().FirstOrDefault(a => a.Key == key)?.Value
+        ?? throw new InvalidOperationException($"The csproj does not stamp {key} into the assembly.");
 }
 
 internal static class EssentialsFallbacks
 {
-    // Essentials' SetCurrent hooks are internal in the shipped assembly, so go through reflection.
     public static void Install()
     {
-        SetCurrent(typeof(AppInfo), typeof(IAppInfo), new LinuxAppInfo());
-        var fileSystem = new LinuxFileSystem();
-        SetCurrent(typeof(FileSystem), typeof(IFileSystem), fileSystem);
+        SetStatic(typeof(AppInfo), "SetCurrent", typeof(IAppInfo), new LinuxAppInfo());
+        SetStatic(typeof(FileSystem), "SetCurrent", typeof(IFileSystem), new LinuxFileSystem());
     }
 
-    private static void SetCurrent(Type essential, Type contract, object implementation)
+    // Essentials' setters are not public in the shipped assembly (SetCurrent for AppInfo and
+    // FileSystem, SetDefault for Share, Clipboard and the rest), so both files go through here.
+    public static void SetStatic(Type essential, string method, Type contract, object implementation)
     {
-        const System.Reflection.BindingFlags flags =
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic;
-        // Current-style Essentials use SetCurrent; Preferences, Share and the like use SetDefault.
-        var setter = essential.GetMethod("SetCurrent", flags, null, [contract], null)
-            ?? essential.GetMethod("SetDefault", flags, null, [contract], null)
-            ?? throw new InvalidOperationException($"{essential.Name}.SetCurrent/SetDefault not found");
+        const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+        var setter = essential.GetMethod(method, flags, null, [contract], null)
+            ?? throw new InvalidOperationException($"{essential.Name}.{method}({contract.Name}) not found");
         setter.Invoke(null, [implementation]);
     }
 }

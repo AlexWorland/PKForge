@@ -4,6 +4,16 @@
 # Env: PKFORGE_PAD_SCRIPT="Down,A"  buttons sent to the app 3 s after start (see LinuxHosting).
 #      SMOKE_OUT=<dir>              where smoke.png goes (default: the temp folder).
 #      SMOKE_RENDERER=raster        force OpenMaui's CPU renderer (use when GPU init fails under Xvfb).
+#
+# First-run end-to-end check (Task 8): links a RetroArch folder through the in-app file browser
+# and expects the save on the Home shelf. The fixture is a blank Gen 2 Crystal save; make it with
+#   PKFORGE_FIXTURE_DIR=/tmp/pkf-saves dotnet test ports/linux/PKForge.Linux.Tests --filter SmokeFixtureTests
+# then run
+#   PKFORGE_SAVE_ROOTS=/tmp/pkf-saves PKFORGE_PAD_SCRIPT="Wait6000,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,A,Wait2500,Start,Wait3000,A,Wait4000" smoke.sh 60
+# Steps: 5 A for the welcome dialogue (each line needs the typewriter to finish, hence the 2.5 s
+# gaps), A "Link an emulator", A "Game Boy / Game Boy Color", A "RetroArch", A "Choose folder",
+# Start picks /tmp/pkf-saves in the browser, A closes "RetroArch linked". Crystal is then on the shelf.
+# Do not end on a single-file open: the box browser's own Back leaves a stale frame (DECISIONS.md RENDER_GAPS).
 set -u
 SECONDS_TO_WAIT="${1:-25}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
