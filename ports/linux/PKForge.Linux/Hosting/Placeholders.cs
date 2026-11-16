@@ -19,12 +19,6 @@ internal sealed class PlaceholderFolderPicker : IFolderPicker
         throw new NotImplementedException("IFolderPicker is not implemented on Linux yet.");
 }
 
-internal sealed class PlaceholderEmulatorDetectionService : IEmulatorDetectionService
-{
-    public ValueTask<EmulatorScanResult> ScanAsync(string treeId, EmulatorKind kind, CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException("IEmulatorDetectionService is not implemented on Linux yet.");
-}
-
 internal sealed class PlaceholderSecondaryDisplayHost : ISecondaryDisplayHost
 {
     public bool IsAvailable => false;

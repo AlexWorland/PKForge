@@ -35,7 +35,7 @@ public static class LinuxHosting
         services.AddSingleton<IFolderPicker, PlaceholderFolderPicker>();
         // Shared code reaches IFolderTreeAccess by casting IFolderFileAccess, so one class serves both.
         services.AddSingleton<IFolderFileAccess, PKForge.Linux.Core.LinuxFolderFileAccess>();
-        services.AddSingleton<IEmulatorDetectionService, PlaceholderEmulatorDetectionService>();
+        services.AddSingleton<IEmulatorDetectionService, PKForge.Linux.Core.LinuxEmulatorScanner>();
         services.AddSingleton<ISecondaryDisplayHost, PlaceholderSecondaryDisplayHost>();
     }
 
