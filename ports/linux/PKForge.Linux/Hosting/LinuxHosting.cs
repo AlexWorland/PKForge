@@ -20,6 +20,7 @@ public static class LinuxHosting
         SkiaSharp.Views.Maui.Controls.Hosting.AppHostBuilderExtensions.UseSkiaSharp(builder);
         builder.UseLinux();
         PKForge.Linux.LinuxEssentials.Install();
+        PKForge.Linux.OskHook.Install();
         StartEssentialsProbe();
         RegisterPlatformServices(builder.Services);
         StartPadScript();
