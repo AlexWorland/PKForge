@@ -1,9 +1,11 @@
 using System.Security.Cryptography;
 using PKForge.Linux.Core;
+using System.Runtime.Versioning;
 using Xunit;
 
 namespace PKForge.Linux.Tests;
 
+[SupportedOSPlatform("linux")]
 public sealed class LinuxSaveFileAccessTests : IDisposable
 {
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "pkforge-" + Guid.NewGuid().ToString("N"));

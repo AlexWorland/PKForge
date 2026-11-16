@@ -39,30 +39,46 @@ public sealed class LinuxFolderFileAccess : IFolderFileAccess, IFolderTreeAccess
             throw new NotSupportedException("This file's folder cannot be written to.");
 
         var name = fileName;
-        while (true)
+        for (var attempt = 0; attempt < MaxNameAttempts; attempt++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             name = SaveInsights.FreeFileName(name, Directory.EnumerateFileSystemEntries(directory).Select(Path.GetFileName)!);
             var target = Resolve(directory, name);
+            FileStream stream;
             try
             {
-                // CreateNew keeps "never overwrites" true even if the name is taken between listing and writing.
-                await using var stream = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1 << 16, useAsync: true);
-                await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-                stream.Flush(flushToDisk: true);
+                // CreateNew keeps "never overwrites" true even if the name is taken between listing and creating.
+                stream = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1 << 16, useAsync: true);
+            }
+            catch (IOException) when (File.Exists(target) || Directory.Exists(target))
+            {
+                continue; // Lost the race for this name; pick the next free one.
+            }
+
+            // From here the file exists: any failure is a real write error, so remove the partial file and surface it.
+            try
+            {
+                await using (stream.ConfigureAwait(false))
+                {
+                    await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+                    stream.Flush(flushToDisk: true);
+                }
                 return name;
             }
-            catch (IOException) when (File.Exists(target))
+            catch
             {
-                // Lost the race for this name; pick the next free one.
+                try { File.Delete(target); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+                throw;
             }
         }
+        throw new IOException($"Could not find a free name for '{fileName}' after {MaxNameAttempts} attempts.");
     }
+
+    private const int MaxNameAttempts = 64;
 
     public ValueTask<IReadOnlyList<FolderEntry>> ListTreeAsync(string treeId, CancellationToken cancellationToken = default)
     {
         var root = RootOf(treeId);
-        IReadOnlyList<FolderEntry> entries = Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
+        IReadOnlyList<FolderEntry> entries = Directory.EnumerateFiles(root, "*", SkipLinks)
             .Select(p => new FileInfo(p))
             .Select(f => new FolderEntry(
                 Path.GetRelativePath(root, f.FullName).Replace('\\', '/'),
@@ -94,6 +110,13 @@ public sealed class LinuxFolderFileAccess : IFolderFileAccess, IFolderTreeAccess
         return ValueTask.FromResult(true);
     }
 
+    /// <summary>Recursive enumeration that skips symbolic links (ReparsePoint on Unix), so nothing behind a link is listed.</summary>
+    private static readonly EnumerationOptions SkipLinks = new()
+    {
+        RecurseSubdirectories = true,
+        AttributesToSkip = FileAttributes.Hidden | FileAttributes.System | FileAttributes.ReparsePoint,
+    };
+
     private static string RootOf(string treeId)
     {
         if (!Path.IsPathRooted(treeId) || !Directory.Exists(treeId))
@@ -110,6 +133,33 @@ public sealed class LinuxFolderFileAccess : IFolderFileAccess, IFolderTreeAccess
         var prefix = root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!full.StartsWith(prefix, StringComparison.Ordinal))
             throw new UnauthorizedAccessException($"'{relative}' is outside the folder.");
+
+        // GetFullPath only normalizes text: a symlink inside the tree can still lead outside it.
+        var realRoot = RealPath(root);
+        var realPrefix = realRoot.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        if (!(RealPath(full) + Path.DirectorySeparatorChar).StartsWith(realPrefix, StringComparison.Ordinal))
+            throw new UnauthorizedAccessException($"'{relative}' leads outside the folder through a link.");
         return full;
+    }
+
+    /// <summary>Resolves every symbolic link along <paramref name="path"/>; components that do not exist yet are kept as written.</summary>
+    private static string RealPath(string path)
+    {
+        var current = Path.GetPathRoot(path)!;
+        var pending = new Stack<string>(path[current.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Reverse());
+        var hops = 0;
+        while (pending.Count > 0)
+        {
+            var next = Path.Combine(current, pending.Pop());
+            FileSystemInfo info = Directory.Exists(next) ? new DirectoryInfo(next) : new FileInfo(next);
+            if (info.LinkTarget is null) { current = next; continue; }
+            if (++hops > 40) throw new UnauthorizedAccessException($"Too many nested links at '{next}'.");
+            var target = Path.GetFullPath(info.LinkTarget, Path.GetDirectoryName(next)!);
+            // Re-walk the target so links inside it are resolved too.
+            current = Path.GetPathRoot(target)!;
+            foreach (var part in target[current.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Reverse())
+                pending.Push(part);
+        }
+        return current;
     }
 }
