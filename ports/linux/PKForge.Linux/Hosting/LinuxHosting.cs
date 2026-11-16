@@ -23,6 +23,7 @@ public static class LinuxHosting
         StartEssentialsProbe();
         RegisterPlatformServices(builder.Services);
         StartPadScript();
+        StartGamepad();
         return builder;
     }
 
@@ -53,6 +54,53 @@ public static class LinuxHosting
         await MainThread.InvokeOnMainThreadAsync(() => PKForge.Linux.LinuxEssentials.LogActive("first window"));
         await Task.Delay(5000);
         await MainThread.InvokeOnMainThreadAsync(() => PKForge.Linux.LinuxEssentials.LogActive("5 s later"));
+    });
+
+    private static PKForge.Linux.Core.SdlGamepadPump? _pump;
+
+    // The handheld's built-in pad is a joystick device the window system does not deliver, so SDL2
+    // reads it and feeds the same GamepadRouter the Android key events reach. Started once the first
+    // window exists, because the router and the dispatcher are only there by then.
+    private static void StartGamepad() => _ = Task.Run(async () =>
+    {
+        for (var i = 0; i < 120; i++)
+        {
+            await Task.Delay(250);
+            if (Application.Current?.Windows.Count > 0) break;
+        }
+        try
+        {
+            var layout = PKForge.Linux.Core.PadMapping.LayoutFrom(Environment.GetEnvironmentVariable("PKFORGE_PAD_LAYOUT"));
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            Services.GamepadRouter? Router() => IPlatformApplication.Current?.Services.GetService<Services.GamepadRouter>();
+            // All of these run on the main thread (the pump posts, the timer is a dispatcher timer).
+            var repeater = new PKForge.Linux.Core.PadRepeater(
+                button => Router()?.Dispatch(button),
+                () => Router()?.TopPagesWithShoulders == true);
+            var pump = new PKForge.Linux.Core.SdlGamepadPump(
+                MainThread.BeginInvokeOnMainThread,
+                (sdl, down) =>
+                {
+                    if (PKForge.Linux.Core.PadMapping.Resolve(sdl, layout) is not { } button) return;
+                    if (down) { repeater.Press(button, clock.ElapsedMilliseconds); return; }
+                    repeater.Release(button);
+                    Router()?.DispatchRelease(button);
+                },
+                (lx, ly, rx, ry) => Router()?.DispatchStick(lx, ly, rx, ry),
+                log: message => Services.AppLog.Info("pad", message));
+            if (!pump.Start()) return;   // the pump has logged why
+            _pump = pump;
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => pump.Stop();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                var timer = Application.Current!.Dispatcher.CreateTimer();
+                timer.Interval = TimeSpan.FromMilliseconds(16);
+                timer.Tick += (_, _) => repeater.Tick(clock.ElapsedMilliseconds);
+                timer.Start();
+            });
+            Services.AppLog.Info("pad", $"Gamepad pump started, layout {layout}");
+        }
+        catch (Exception ex) { Services.AppLog.Error("pad", "Gamepad pump failed to start", ex); }
     });
 
     // Test hook: PKFORGE_PAD_SCRIPT="Down,Wait1000,A" sends each PadButton through GamepadRouter.Dispatch
