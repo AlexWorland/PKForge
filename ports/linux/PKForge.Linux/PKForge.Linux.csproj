@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PKForge.App</RootNamespace>
+    <AssemblyName>PKForge</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <!-- Repository root: this project lives at ports/linux/PKForge.Linux. -->
+    <PKForgeRoot Condition="'$(PKForgeRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../..'))</PKForgeRoot>
+    <ApplicationTitle>PKForge</ApplicationTitle>
+    <ApplicationVersion>320</ApplicationVersion>
+    <ApplicationDisplayVersion>3.2.0</ApplicationDisplayVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Read back by LinuxAppInfo so the About line and update check see the app's real version. -->
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ApplicationDisplayVersion</_Parameter1>
+      <_Parameter2>$(ApplicationDisplayVersion)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ApplicationVersion</_Parameter1>
+      <_Parameter2>$(ApplicationVersion)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenMaui.Hosting" Version="10.0.130.1" />
+    <PackageReference Include="OpenMaui.Controls.Linux" Version="10.0.130.1" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.130" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="10.0.130" />
+    <PackageReference Include="SkiaSharp" Version="4.152.1" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="4.152.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="ZXing.Net" Version="0.16.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(PKForgeRoot)/src/PKForge.App/**/*.cs"
+             Exclude="$(PKForgeRoot)/src/PKForge.App/Platforms/**;$(PKForgeRoot)/src/PKForge.App/bin/**;$(PKForgeRoot)/src/PKForge.App/obj/**;$(PKForgeRoot)/src/PKForge.App/Services/VsyncLoop.cs;$(PKForgeRoot)/src/PKForge.App/Services/AppUpdateService.cs;$(PKForgeRoot)/src/PKForge.App/Views/WidgetMenu.cs;$(PKForgeRoot)/src/PKForge.App/Views/BadAppleEgg.cs"
+             Link="App/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="Program.cs;Core/**/*.cs;Hosting/**/*.cs;AndroidShim/**/*.cs;Seams/**/*.cs;Platform/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(PKForgeRoot)/src/PKForge.Domain/PKForge.Domain.csproj" />
+    <ProjectReference Include="$(PKForgeRoot)/src/PKForge.Engine/PKForge.Engine.csproj" />
+    <ProjectReference Include="$(PKForgeRoot)/src/PKForge.Infrastructure/PKForge.Infrastructure.csproj" />
+    <ProjectReference Include="../PKForge.Chrome.Skia4/PKForge.Chrome.Skia4.csproj" />
+  </ItemGroup>
+
+  <Import Project="Assets.props" />
+</Project>

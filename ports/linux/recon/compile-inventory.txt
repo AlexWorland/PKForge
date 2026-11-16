@@ -1,0 +1,44 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PKForge.Domain -> /Users/alexworland/git-repos/PKForge/src/PKForge.Domain/bin/Debug/net10.0/PKForge.Domain.dll
+  PKForge.Infrastructure -> /Users/alexworland/git-repos/PKForge/src/PKForge.Infrastructure/bin/Debug/net10.0/PKForge.Infrastructure.dll
+  PKForge.Chrome.Skia4 -> /Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Chrome.Skia4/bin/Debug/net10.0/PKForge.Chrome.dll
+  PKHeX.Core -> /Users/alexworland/git-repos/PKForge/external/PKHeX/PKHeX.Core/bin/Debug/net10.0/PKHeX.Core.dll
+  PKForge.AutoMod -> /Users/alexworland/git-repos/PKForge/src/PKForge.AutoMod/bin/Debug/net10.0/PKHeX.Core.AutoMod.dll
+  PKForge.Engine -> /Users/alexworland/git-repos/PKForge/src/PKForge.Engine/bin/Debug/net10.0/PKForge.Engine.dll
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/App.cs(15,20): error CS0246: The type or namespace name 'Platforms' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/LivingDexRouteMap.cs(25,22): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkCreditsOverlay.cs(27,31): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/MonSummaryView.cs(299,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PickerMenu.cs(88,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkEventOverlay.cs(29,31): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/TouchScroller.cs(33,22): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/MonSummaryView.cs(224,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkPage.cs(32,22): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+
+Build FAILED.
+
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/App.cs(15,20): error CS0246: The type or namespace name 'Platforms' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/LivingDexRouteMap.cs(25,22): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkCreditsOverlay.cs(27,31): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/MonSummaryView.cs(299,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PickerMenu.cs(88,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkEventOverlay.cs(29,31): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/TouchScroller.cs(33,22): error CS0234: The type or namespace name 'VsyncLoop' does not exist in the namespace 'PKForge.App.Services' (are you missing an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/MonSummaryView.cs(224,13): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+/Users/alexworland/git-repos/PKForge/src/PKForge.App/Views/PokeparkPage.cs(32,22): error CS0246: The type or namespace name 'VsyncLoop' could not be found (are you missing a using directive or an assembly reference?) [/Users/alexworland/git-repos/PKForge/ports/linux/PKForge.Linux/PKForge.Linux.csproj]
+    0 Warning(s)
+    9 Error(s)
+
+Time Elapsed 00:00:07.28
+
+==== Probe summary (added by hand) ====
+The build above stops at declaration-level errors, which hide body errors. With temporary empty
+stubs for VsyncLoop, AppUpdateService and Platforms.Android.MusicPlayer, the remaining errors were
+only missing PKForge types/members for Task 4 (no Android/Java or other errors):
+  CS0103 missing names: BadAppleEgg, HomeWidgetStore, HomeWidgetTab, HomeWidgets, PokeparkWidgetPublisher, WidgetMenu
+  AppUpdateService: CanInstallUpdates, OpenInstallPermissionSettings, CheckAsync, DontRemindMe,
+                    DownloadAndInstallAsync, ShouldPromptAutomatically (CS0117/CS1061)
+  MusicPlayer (PKForge.App.Platforms.Android): LastError, MaybeAutostart, PauseForBackground, ResumeFromBackground
+  VsyncLoop: constructor taking 1 argument, Start, Stop; also PKForge.App.Services.VsyncLoop must exist
+  CS0165 'authorized' in HomePage.cs 327/397: cascade of the unresolved AppUpdateService, not independent
