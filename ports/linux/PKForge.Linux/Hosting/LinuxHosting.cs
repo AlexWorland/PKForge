@@ -24,5 +24,7 @@ public static class LinuxHosting
     // Later tasks register the Linux implementations of the app's platform seams here.
     internal static void RegisterPlatformServices(IServiceCollection services)
     {
+        services.AddSingleton<Platforms.Android.MusicPlayer>();
+        services.AddSingleton<PKForge.Domain.IMusicPlayer>(sp => sp.GetRequiredService<Platforms.Android.MusicPlayer>());
     }
 }

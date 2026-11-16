@@ -58,7 +58,7 @@ namespace Android.Content
     {
         public virtual string? PackageName => null;
 
-        public virtual ISharedPreferences? GetSharedPreferences(string? name, FileCreationMode mode) => null;
+        public virtual ISharedPreferences? GetSharedPreferences(string? name, FileCreationMode mode) => new EmptyPreferences();
     }
 
     public interface ISharedPreferencesEditor : System.IDisposable
@@ -77,6 +77,24 @@ namespace Android.Content
         IDictionary<string, object> All { get; }
 
         ISharedPreferencesEditor? Edit();
+    }
+
+    // Preferences are not carried in archives on Linux yet: reads are empty and writes are discarded.
+    internal sealed class EmptyPreferences : ISharedPreferences, ISharedPreferencesEditor
+    {
+        public IDictionary<string, object> All { get; } = new Dictionary<string, object>();
+
+        public ISharedPreferencesEditor? Edit() => this;
+
+        public ISharedPreferencesEditor? PutBoolean(string? key, bool value) => this;
+        public ISharedPreferencesEditor? PutInt(string? key, int value) => this;
+        public ISharedPreferencesEditor? PutLong(string? key, long value) => this;
+        public ISharedPreferencesEditor? PutFloat(string? key, float value) => this;
+        public ISharedPreferencesEditor? PutString(string? key, string? value) => this;
+
+        public bool Commit() => true;
+
+        public void Dispose() { }
     }
 }
 
